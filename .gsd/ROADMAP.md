@@ -1,7 +1,7 @@
 # ROADMAP.md
 
-> **Current Phase**: Phase 5: Performance & Final Polish (Complete)
-> **Milestone**: v1.0 — MVP Launch 🎉
+> **Current Phase**: Phase 6: Ease-of-Use & Customization
+> **Milestone**: v1.0 — MVP Launch 🎉 (Phase 6 Enhancement)
 
 ## Must-Haves (from SPEC)
 - [x] Duo-Mode CLI (Interactive & One-off)
@@ -38,3 +38,14 @@
 **Status**: ✅ Complete
 **Objective**: Finalize the application, optimize performance, and compile the standalone binary.
 **Requirements**: REQ-14, REQ-15
+
+### Phase 6: Ease-of-Use & Customization
+**Status**: ⬜ Not Started
+**Objective**: Implement onboarding refinements, terminal clearing, interactive session selection, and multi-model support.
+**Requirements**: REQ-16, REQ-17, REQ-18
+
+**Tasks**:
+- [ ] TBD (run /plan 6 to create)
+
+**Verification**:
+- TBD
