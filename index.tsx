@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { ConfigManager } from './src/config/manager.js';
 import { Onboarding } from './src/cli/onboarding.js';
 import { OneOff } from './src/cli/one-off.js';
+import { Session } from './src/cli/session.js';
 
 const program = new Command();
 
@@ -22,18 +23,12 @@ program
         }
 
         if (prompt) {
-            // One-off Mode
             render(<OneOff prompt={prompt} config={config} />);
         } else {
-            // Interactive Mode (Session persistence coming in Phase 4)
-            console.log('Ready! Kimi k2.5 is at your service.');
-            console.log('Interactive session mode placeholder - entering session...');
-            // Placeholder: In Phase 3/4 we'll render a <Session /> component
-            process.exit(0);
+            render(<Session config={config} />);
         }
     });
 
-// Handle Ctrl-C gracefully
 process.on('SIGINT', () => {
     process.exit(0);
 });
