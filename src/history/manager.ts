@@ -56,8 +56,34 @@ export class HistoryManager {
     }
 
     /**
-     * Internal helper to get the history directory path
+     * Remove oldest sessions if limit exceeded
      */
+    static async cleanup(limit: number): Promise<void> {
+        if (!fs.existsSync(this.HISTORY_DIR)) return;
+
+        try {
+            const files = fs.readdirSync(this.HISTORY_DIR)
+                .filter(file => file.endsWith('.json'))
+                .map(file => {
+                    const filePath = path.join(this.HISTORY_DIR, file);
+                    const stats = fs.statSync(filePath);
+                    return { name: file, path: filePath, mtime: stats.mtimeMs };
+                });
+
+            if (files.length <= limit) return;
+
+            // Sort by mtime ascending (oldest first)
+            files.sort((a, b) => a.mtime - b.mtime);
+
+            const toDelete = files.slice(0, files.length - limit);
+            for (const file of toDelete) {
+                fs.unlinkSync(file.path);
+            }
+        } catch (error) {
+            console.error('Failed to cleanup history:', error);
+        }
+    }
+
     static getHistoryDir(): string {
         return this.HISTORY_DIR;
     }

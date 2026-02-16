@@ -71,6 +71,7 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
 
             const finalMessages: ChatMessage[] = [...historyWithUser, { role: 'assistant', content: assistantContent }];
             await HistoryManager.saveSession(sessionId, finalMessages);
+            await HistoryManager.cleanup(config.historyLimit);
             setStatus('idle');
         } catch (err) {
             setError(err instanceof Error ? err.message : String(err));
