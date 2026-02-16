@@ -88,11 +88,13 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
 
             <Box flexDirection="column">
                 {messages.map((msg, index) => (
-                    <Box key={index} flexDirection="column" marginBottom={1}>
-                        <Text bold color={msg.role === 'user' ? 'green' : 'cyan'}>
-                            {msg.role === 'user' ? 'YOU' : 'KIMI'}
-                        </Text>
-                        <Box paddingLeft={2}>
+                    <Box key={index} flexDirection="column" marginBottom={1} borderStyle="round" borderColor={msg.role === 'user' ? 'green' : 'blue'} paddingX={1}>
+                        <Box>
+                            <Text bold color={msg.role === 'user' ? 'green' : 'cyan'}>
+                                {msg.role === 'user' ? ' USER ' : ' KIMI '}
+                            </Text>
+                        </Box>
+                        <Box paddingLeft={1} marginTop={0}>
                             <Markdown>{msg.content}</Markdown>
                         </Box>
                     </Box>

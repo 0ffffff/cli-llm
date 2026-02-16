@@ -5,10 +5,10 @@ import Spinner from 'ink-spinner';
 export const Thinking: React.FC = () => {
     return (
         <Box>
-            <Text color="yellow">
+            <Text color="cyan">
                 <Spinner type="dots" />
             </Text>
-            <Text color="yellow"> Thinking...</Text>
+            <Text color="cyan" italic> Kimi is thinking...</Text>
         </Box>
     );
 };
