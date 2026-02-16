@@ -4,23 +4,29 @@ import { Box, Text, useApp } from 'ink';
 import TextInput from 'ink-text-input';
 import chalk from 'chalk';
 import { ConfigManager } from '../config/manager.js';
+import { detectProvider } from '../config/types.js';
 
 export const Onboarding: React.FC = () => {
     const [key, setKey] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [providerName, setProviderName] = useState('');
     const { exit } = useApp();
 
     const handleSubmit = async (value: string) => {
+        const provider = detectProvider(value);
         const config = await ConfigManager.load();
         await ConfigManager.save({
             ...config,
             apiKey: value,
+            provider: provider.name,
+            baseUrl: provider.baseUrl,
+            model: provider.modelId,
         });
+        setProviderName(provider.name);
         setIsSubmitted(true);
-        // Small delay to show success before exiting
         setTimeout(() => {
             exit();
-        }, 1000);
+        }, 1500);
     };
 
     return (
@@ -33,7 +39,12 @@ export const Onboarding: React.FC = () => {
 
             <Box>
                 <Text>
-                    To get started, you need to provide your {chalk.yellow('NVIDIA Cloud API Key')}.
+                    To get started, provide your API key.
+                </Text>
+            </Box>
+            <Box marginBottom={1}>
+                <Text color="gray">
+                    Supported: {chalk.yellow('NVIDIA (Kimi)')}, {chalk.green('OpenAI')}, {chalk.magenta('Anthropic')}
                 </Text>
             </Box>
 
@@ -49,7 +60,11 @@ export const Onboarding: React.FC = () => {
                     <TextInput value={key} onChange={setKey} onSubmit={handleSubmit} mask="*" />
                 </Box>
             ) : (
-                <Text color="green">✔ API Key saved successfully! Restarting...</Text>
+                <Box flexDirection="column">
+                    <Text color="green">✔ API Key saved successfully!</Text>
+                    <Text color="cyan">  Provider detected: {chalk.bold(providerName)}</Text>
+                    <Text color="gray">  Run `llm` again to start chatting.</Text>
+                </Box>
             )}
         </Box>
     );

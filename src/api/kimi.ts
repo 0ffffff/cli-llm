@@ -1,11 +1,12 @@
 import type { ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessage } from './types.js';
 
 export class KimiClient {
-    private static readonly BASE_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+    private static readonly DEFAULT_BASE_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
     constructor(
         private readonly apiKey: string,
-        private readonly model: string = 'moonshotai/kimi-k2.5'
+        private readonly model: string = 'moonshotai/kimi-k2.5',
+        private readonly baseUrl: string = KimiClient.DEFAULT_BASE_URL
     ) { }
 
     async sendMessage(messages: ChatMessage[], options: Partial<ChatCompletionRequest> = {}): Promise<string> {
@@ -16,7 +17,7 @@ export class KimiClient {
             ...options,
         };
 
-        const response = await fetch(KimiClient.BASE_URL, {
+        const response = await fetch(this.baseUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -48,7 +49,7 @@ export class KimiClient {
             ...options,
         };
 
-        const response = await fetch(KimiClient.BASE_URL, {
+        const response = await fetch(this.baseUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

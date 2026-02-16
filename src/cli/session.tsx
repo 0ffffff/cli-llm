@@ -49,7 +49,7 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
         setError(null);
 
         try {
-            const client = new KimiClient(config.apiKey!, config.model);
+            const client = new KimiClient(config.apiKey!, config.model, config.baseUrl);
             const apiMessages: ChatMessage[] = [
                 { role: 'system', content: config.defaultSystemPrompt },
                 ...historyWithUser
@@ -65,7 +65,6 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
                     started = true;
                 }
                 assistantContent += chunk;
-                // Update the last message (the assistant's being formed)
                 setMessages([...historyWithUser, { role: 'assistant', content: assistantContent }]);
             }
 
@@ -79,10 +78,13 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
         }
     };
 
+    const providerName = config.provider || 'AI';
+    const assistantLabel = providerName.toUpperCase().replace(/\s+/g, '');
+
     return (
         <Box flexDirection="column" paddingX={1} paddingTop={1}>
             <Box marginBottom={1}>
-                <Text color="blue" bold>● Kimi k2.5 Session</Text>
+                <Text color="blue" bold>● {providerName} Session</Text>
                 <Text color="gray"> ({sessionId})</Text>
             </Box>
 
@@ -91,7 +93,7 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
                     <Box key={index} flexDirection="column" marginBottom={1} borderStyle="round" borderColor={msg.role === 'user' ? 'green' : 'blue'} paddingX={1}>
                         <Box>
                             <Text bold color={msg.role === 'user' ? 'green' : 'cyan'}>
-                                {msg.role === 'user' ? ' USER ' : ' KIMI '}
+                                {msg.role === 'user' ? ' YOU ' : ` ${assistantLabel} `}
                             </Text>
                         </Box>
                         <Box paddingLeft={1} marginTop={0}>

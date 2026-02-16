@@ -18,7 +18,7 @@ export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
     const { exit } = useApp();
 
     useEffect(() => {
-        const client = new KimiClient(config.apiKey!, config.model);
+        const client = new KimiClient(config.apiKey!, config.model, config.baseUrl);
         let assistantContent = '';
 
         const run = async () => {
