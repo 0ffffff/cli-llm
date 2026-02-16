@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-> **Current Phase**: Phase 3: Premium TUI Implementation
+> **Current Phase**: Phase 4: Session Persistence & Reliability
 > **Milestone**: v1.0 — MVP Launch
 
 ## Must-Haves (from SPEC)
@@ -23,9 +23,9 @@
 **Requirements**: REQ-05, REQ-10, REQ-11, REQ-12
 
 ### Phase 3: Premium TUI Implementation
-**Status**: ⬜ Not Started
-**Objective**: Build the interactive React/Ink interface with Markdown rendering and "thinking" states.
-**Requirements**: REQ-02, REQ-03, REQ-04
+**Status**: ✅ Complete
+**Objective**: Build a high-fidelity interactive chat interface with markdown rendering and streaming.
+**Requirements**: REQ-02, REQ-03, REQ-04, REQ-06, REQ-07
 
 ### Phase 4: Persistence & History Management
 **Status**: ⬜ Not Started
