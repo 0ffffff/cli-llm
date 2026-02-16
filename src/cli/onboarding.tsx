@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { Box, Text, useApp } from 'ink';
-import TextInput from 'ink-text-input';
 import chalk from 'chalk';
 import { ConfigManager } from '../config/manager.js';
 import { detectProvider } from '../config/types.js';
+import { ChatInput } from './components/ChatInput.js';
 
 export const Onboarding: React.FC = () => {
     const [key, setKey] = useState('');
@@ -13,11 +13,12 @@ export const Onboarding: React.FC = () => {
     const { exit } = useApp();
 
     const handleSubmit = async (value: string) => {
-        const provider = detectProvider(value);
+        const trimmed = value.trim();
+        const provider = detectProvider(trimmed);
         const config = await ConfigManager.load();
         await ConfigManager.save({
             ...config,
-            apiKey: value,
+            apiKey: trimmed,
             provider: provider.name,
             baseUrl: provider.baseUrl,
             model: provider.modelId,
@@ -57,7 +58,12 @@ export const Onboarding: React.FC = () => {
             {!isSubmitted ? (
                 <Box>
                     <Text color="green">API Key: </Text>
-                    <TextInput value={key} onChange={setKey} onSubmit={handleSubmit} mask="*" />
+                    <ChatInput
+                        value={key}
+                        onChange={setKey}
+                        onSubmit={handleSubmit}
+                        mask="*"
+                    />
                 </Box>
             ) : (
                 <Box flexDirection="column">

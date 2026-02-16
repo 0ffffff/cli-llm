@@ -8,7 +8,7 @@ export const Thinking: React.FC = () => {
             <Text color="cyan">
                 <Spinner type="dots" />
             </Text>
-            <Text color="cyan" italic> Kimi is thinking...</Text>
+            <Text color="cyan" italic> Thinking...</Text>
         </Box>
     );
 };

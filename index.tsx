@@ -13,14 +13,21 @@ const program = new Command();
 
 // Alternate screen buffer helpers
 function enterAltScreen() {
-    process.stdout.write('\x1B[?1049h');
+    process.stdout.write('\x1B[?1049h'); // Enter alt screen
+    process.stdout.write('\x1B[?1000h'); // Enable mouse tracking
+    process.stdout.write('\x1B[?1006h'); // Enable SGR mode
     process.stdout.write('\x1B[H');
     process.stdout.write('\x1B[2J');
 }
 
 function exitAltScreen() {
-    process.stdout.write('\x1B[?1049l');
+    process.stdout.write('\x1B[?1006l'); // Disable SGR mode
+    process.stdout.write('\x1B[?1000l'); // Disable mouse tracking
+    process.stdout.write('\x1B[?1049l'); // Exit alt screen
+    process.stdout.write('\x1B[?25h');   // Ensure cursor is shown
 }
+
+// Direct session (new or resumed)
 
 function generateSessionId(): string {
     const date = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
@@ -40,17 +47,21 @@ program
         const config = await ConfigManager.load();
 
         if (!config.apiKey) {
-            render(<Onboarding />);
+            enterAltScreen();
+            const instance = render(<Onboarding />);
+            await instance.waitUntilExit();
+            exitAltScreen();
             return;
         }
 
-        // One-off mode: no alternate screen
+        // One-off mode: no alternate screen, just paste into standard output
         if (prompt) {
-            render(<OneOff prompt={prompt} config={config} />);
+            const instance = render(<OneOff prompt={prompt} config={config} />);
+            await instance.waitUntilExit();
             return;
         }
 
-        // Interactive session mode
+        // Interactive session mode uses alt-screen for isolation
         enterAltScreen();
 
         // --select mode: show interactive picker

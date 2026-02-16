@@ -5,7 +5,7 @@ import TerminalRenderer from 'marked-terminal';
 
 // Configure marked to use terminal renderer
 marked.setOptions({
-    renderer: new TerminalRenderer()
+    renderer: new TerminalRenderer() as any
 });
 
 interface MarkdownProps {

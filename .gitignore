@@ -1,13 +1,8 @@
-# Add gsd stuff
-.agent
-.gemini
-# .gsd (Removed from ignore to track project docs)
-# .gsd
+node_modules/
+.env
 
-adapters
-docs
-scripts
-GSD-STYLE.md
-PROJECT_RULES.md
-model_capabilities.yaml
-node_modules
+# Build Artifacts
+llm
+
+# System Files
+.DS_Store

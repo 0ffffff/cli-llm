@@ -10,6 +10,10 @@ export interface ChatCompletionRequest {
     top_p?: number;
     max_tokens?: number;
     stream?: boolean;
+    chat_template_kwargs?: {
+        thinking?: boolean;
+        [key: string]: any;
+    };
 }
 
 export interface ChatCompletionResponse {

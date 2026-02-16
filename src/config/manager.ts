@@ -24,11 +24,12 @@ export class ConfigManager {
         // Environment variables override file config
         const envKey = process.env.LLM_API_KEY || process.env.NVIDIA_API_KEY;
         if (envKey) {
-            config.apiKey = envKey;
+            config.apiKey = envKey.trim();
         }
 
         // If we have an API key, auto-detect provider settings
         if (config.apiKey && (!config.provider || config.provider === DEFAULT_CONFIG.provider)) {
+            config.apiKey = config.apiKey.trim();
             const provider = detectProvider(config.apiKey);
             config.provider = provider.name;
             config.baseUrl = provider.baseUrl;

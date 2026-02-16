@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Box, Text, useApp } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 import { KimiClient } from '../api/kimi.js';
 import { Markdown } from './components/Markdown.js';
 import { Thinking } from './components/Thinking.js';
@@ -50,21 +50,17 @@ export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
     }, [response, error, exit, isStreaming]);
 
     return (
-        <Box flexDirection="column" paddingX={1} paddingTop={1}>
+        <Box flexDirection="column" paddingX={0} paddingTop={0}>
             {!response && !error && (
                 <Thinking />
             )}
 
             {response && (
-                <Box marginTop={1} flexDirection="column">
-                    <Markdown>{response}</Markdown>
-                </Box>
+                <Markdown>{response}</Markdown>
             )}
 
             {error && (
-                <Box marginTop={1}>
-                    <Text color="red">Error: {error}</Text>
-                </Box>
+                <Text color="red">Error: {error}</Text>
             )}
         </Box>
     );
