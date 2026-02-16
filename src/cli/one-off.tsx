@@ -2,6 +2,8 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Box, Text, useApp } from 'ink';
 import { KimiClient } from '../api/kimi.js';
+import { Markdown } from './components/Markdown.js';
+import { Thinking } from './components/Thinking.js';
 import type { AppConfig } from '../config/types.js';
 
 interface OneOffProps {
@@ -23,9 +25,6 @@ export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
         ])
             .then(res => {
                 setResponse(res);
-                // Process remains open for human to read, but SPEC says "post-completion exit"
-                // Actually index.tsx will likely handle unmounting or we exit here.
-                // For one-off, we just want to print and go.
             })
             .catch(err => {
                 setError(err instanceof Error ? err.message : String(err));
@@ -34,29 +33,21 @@ export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
 
     useEffect(() => {
         if (response || error) {
-            // Small delay or just exit? SPEC says "After a response is printed to the terminal, all history... deleted"
-            // One-off usually exits immediately after output.
-            // But in React/Ink, we might want to wait a beat or let the parent handle it.
-            // For now, index.tsx will render this and we'll just show the result.
-            // We will exit from here to ensure the process ends.
-            if (response || error) {
-                // Wait 100ms for final render
-                setTimeout(() => exit(), 100);
-            }
+            // Small delay for clean render before exit
+            const timer = setTimeout(() => exit(), 500);
+            return () => clearTimeout(timer);
         }
     }, [response, error, exit]);
 
     return (
-        <Box flexDirection="column" paddingX={1}>
+        <Box flexDirection="column" paddingX={1} paddingTop={1}>
             {!response && !error && (
-                <Box>
-                    <Text color="yellow">Thinking...</Text>
-                </Box>
+                <Thinking />
             )}
 
             {response && (
-                <Box marginTop={1}>
-                    <Text>{response}</Text>
+                <Box marginTop={1} flexDirection="column">
+                    <Markdown>{response}</Markdown>
                 </Box>
             )}
 
