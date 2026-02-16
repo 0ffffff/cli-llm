@@ -1,0 +1,12 @@
+# Add gsd stuff
+.agent
+.gemini
+# .gsd (Removed from ignore to track project docs)
+# .gsd
+
+adapters
+docs
+scripts
+GSD-STYLE.md
+PROJECT_RULES.md
+model_capabilities.yaml
