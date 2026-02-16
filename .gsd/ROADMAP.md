@@ -1,7 +1,7 @@
 # ROADMAP.md
 
-> **Current Phase**: Phase 6: Ease-of-Use & Customization (Complete)
-> **Milestone**: v1.0 — MVP Launch 🎉
+> **Current Phase**: Phase 7: Immersive UI Reimagining
+> **Milestone**: v1.1 — Immersive Experience 🎭
 
 ## Must-Haves (from SPEC)
 - [x] Duo-Mode CLI (Interactive & One-off)
@@ -44,8 +44,15 @@
 **Objective**: Implement onboarding refinements, terminal clearing, interactive session selection, and multi-model support.
 **Requirements**: REQ-16, REQ-17, REQ-18
 
+---
+
+### Phase 7: Immersive UI Reimagining
+**Status**: ⬜ Not Started
+**Objective**: Implement low-level rendering loop with alt-buffer, mouse tracking, and responsive terminal resizing (SIGWINCH), while shifting to a minimal tag-based design.
+**Depends on**: Phase 6
+
 **Tasks**:
-- [ ] TBD (run /plan 6 to create)
+- [ ] TBD (run /plan 7 to create)
 
 **Verification**:
 - TBD
