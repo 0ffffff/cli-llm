@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-> **Current Phase**: Not started
+> **Current Phase**: Phase 2: Core API & CLI Skeleton
 > **Milestone**: v1.0 — MVP Launch
 
 ## Must-Haves (from SPEC)
@@ -13,7 +13,7 @@
 ## Phases
 
 ### Phase 1: Foundation & Onboarding
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Set up project structure, Bun environment, and the configuration manager (API key setup).
 **Requirements**: REQ-01, REQ-08, REQ-09
 

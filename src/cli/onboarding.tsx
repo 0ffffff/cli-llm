@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { Box, Text, useApp } from 'ink';
 import TextInput from 'ink-text-input';
 import chalk from 'chalk';
@@ -24,15 +25,23 @@ export const Onboarding: React.FC = () => {
 
     return (
         <Box flexDirection="column" padding={1} borderStyle="round" borderColor="blue">
-            <Text bold color="blue">
-                Welcome to cli-llm!
-            </Text>
-            <Text marginTop={1}>
-                To get started, you need to provide your {chalk.yellow('NVIDIA Cloud API Key')}.
-            </Text>
-            <Text color="gray" marginBottom={1}>
-                (Your key is stored locally in ~/.cli-llm/config.json)
-            </Text>
+            <Box marginBottom={1}>
+                <Text bold color="blue">
+                    Welcome to cli-llm!
+                </Text>
+            </Box>
+
+            <Box>
+                <Text>
+                    To get started, you need to provide your {chalk.yellow('NVIDIA Cloud API Key')}.
+                </Text>
+            </Box>
+
+            <Box marginBottom={1}>
+                <Text color="gray">
+                    (Your key is stored locally in ~/.cli-llm/config.json)
+                </Text>
+            </Box>
 
             {!isSubmitted ? (
                 <Box>

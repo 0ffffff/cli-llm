@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { AppConfig, DEFAULT_CONFIG } from './types.js';
+import { type AppConfig, DEFAULT_CONFIG } from './types.js';
 
 export class ConfigManager {
     private static readonly CONFIG_DIR = path.join(os.homedir(), '.cli-llm');
