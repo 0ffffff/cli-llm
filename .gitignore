@@ -9,4 +9,5 @@ docs
 scripts
 GSD-STYLE.md
 PROJECT_RULES.md
-model_capabilities.yamlnode_modules
+model_capabilities.yaml
+node_modules
