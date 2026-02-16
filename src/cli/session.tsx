@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import TextInput from 'ink-text-input';
 import { KimiClient } from '../api/kimi.js';
+import { HistoryManager } from '../history/manager.js';
 import { Markdown } from './components/Markdown.js';
 import { Thinking } from './components/Thinking.js';
 import type { AppConfig } from '../config/types.js';
@@ -10,13 +11,31 @@ import type { ChatMessage } from '../api/types.js';
 
 interface SessionProps {
     config: AppConfig;
+    sessionId: string;
 }
 
-export const Session: React.FC<SessionProps> = ({ config }) => {
+export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
-    const [status, setStatus] = useState<'idle' | 'busy' | 'streaming' | 'error'>('idle');
+    const [status, setStatus] = useState<'idle' | 'busy' | 'streaming' | 'error' | 'loading'>('loading');
     const [error, setError] = useState<string | null>(null);
+
+    // Load existing history if any
+    useEffect(() => {
+        async function load() {
+            try {
+                const history = await HistoryManager.loadSession(sessionId);
+                if (history.length > 0) {
+                    setMessages(history);
+                }
+                setStatus('idle');
+            } catch (err) {
+                console.error('Failed to load history:', err);
+                setStatus('idle');
+            }
+        }
+        load();
+    }, [sessionId]);
 
     const handleSubmit = async (value: string) => {
         if (!value.trim()) return;
@@ -50,6 +69,8 @@ export const Session: React.FC<SessionProps> = ({ config }) => {
                 setMessages([...historyWithUser, { role: 'assistant', content: assistantContent }]);
             }
 
+            const finalMessages: ChatMessage[] = [...historyWithUser, { role: 'assistant', content: assistantContent }];
+            await HistoryManager.saveSession(sessionId, finalMessages);
             setStatus('idle');
         } catch (err) {
             setError(err instanceof Error ? err.message : String(err));
@@ -61,6 +82,7 @@ export const Session: React.FC<SessionProps> = ({ config }) => {
         <Box flexDirection="column" paddingX={1} paddingTop={1}>
             <Box marginBottom={1}>
                 <Text color="blue" bold>● Kimi k2.5 Session</Text>
+                <Text color="gray"> ({sessionId})</Text>
             </Box>
 
             <Box flexDirection="column">
@@ -75,6 +97,13 @@ export const Session: React.FC<SessionProps> = ({ config }) => {
                     </Box>
                 ))}
             </Box>
+
+            {status === 'loading' && (
+                <Box marginBottom={1}>
+                    <Thinking />
+                    <Text> Loading history...</Text>
+                </Box>
+            )}
 
             {status === 'busy' && (
                 <Box marginBottom={1}>

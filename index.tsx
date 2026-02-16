@@ -25,7 +25,12 @@ program
         if (prompt) {
             render(<OneOff prompt={prompt} config={config} />);
         } else {
-            render(<Session config={config} />);
+            // Generate a session ID if one isn't provided (session resume can be a flag later)
+            const date = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const random = Math.random().toString(36).substring(2, 7);
+            const sessionId = `session-${date}-${random}`;
+
+            render(<Session config={config} sessionId={sessionId} />);
         }
     });
 
