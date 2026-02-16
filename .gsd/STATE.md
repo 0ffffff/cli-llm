@@ -7,7 +7,7 @@ Project initialized for `cli-llm`. Bun, TypeScript, and React Ink selected for s
 - [ ] Milestone v1.0 — MVP Launch
 
 ## Active Phase
-- Phase 4: Session Persistence & Reliability (Planned)
+- Phase 5: Performance & Final Polish (Not Started)
 
 ## Known Blockers
 - None.

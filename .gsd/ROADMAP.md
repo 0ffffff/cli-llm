@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-> **Current Phase**: Phase 4: Session Persistence & Reliability
+> **Current Phase**: Phase 5: Performance & Final Polish
 > **Milestone**: v1.0 — MVP Launch
 
 ## Must-Haves (from SPEC)
@@ -28,9 +28,9 @@
 **Requirements**: REQ-02, REQ-03, REQ-04, REQ-06, REQ-07
 
 ### Phase 4: Persistence & History Management
-**Status**: ⬜ Not Started
-**Objective**: Implement the caching layer to save sessions and the interactive menu to resume them.
-**Requirements**: REQ-06, REQ-07
+**Status**: ✅ Complete
+**Objective**: Implement conversation logging and history persistence for multi-turn chats.
+**Requirements**: REQ-09, REQ-13
 
 ### Phase 5: Polish & Launch
 **Status**: ⬜ Not Started
