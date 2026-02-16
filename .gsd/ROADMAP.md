@@ -1,6 +1,6 @@
 # ROADMAP.md
 
-> **Current Phase**: Phase 2: Core API & CLI Skeleton
+> **Current Phase**: Phase 3: Premium TUI Implementation
 > **Milestone**: v1.0 — MVP Launch
 
 ## Must-Haves (from SPEC)
@@ -18,7 +18,7 @@
 **Requirements**: REQ-01, REQ-08, REQ-09
 
 ### Phase 2: Core API & CLI Skeleton
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Implement Kimi k2.5 API client and basic CLI argument parsing for both modes.
 **Requirements**: REQ-05, REQ-10, REQ-11, REQ-12
 

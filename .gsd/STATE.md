@@ -7,7 +7,7 @@ Project initialized for `cli-llm`. Bun, TypeScript, and React Ink selected for s
 - [ ] Milestone v1.0 — MVP Launch
 
 ## Active Phase
-- Phase 2: Core API & CLI Skeleton (Planned)
+- Phase 3: Premium TUI Implementation (Not Started)
 
 ## Known Blockers
 - None.
