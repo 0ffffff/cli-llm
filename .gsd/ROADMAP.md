@@ -1,14 +1,16 @@
 # ROADMAP.md
 
-> **Current Phase**: Phase 5: Performance & Final Polish
-> **Milestone**: v1.0 — MVP Launch
+> **Current Phase**: Phase 5: Performance & Final Polish (Complete)
+> **Milestone**: v1.0 — MVP Launch 🎉
 
 ## Must-Haves (from SPEC)
-- [ ] Duo-Mode CLI (Interactive & One-off)
-- [ ] React + Ink TUI with Markdown/Code highlighting
-- [ ] Kimi k2.5 API Integration
-- [ ] Local conversation caching and resumption
-- [ ] Secure first-run configuration
+- [x] Duo-Mode CLI (Interactive & One-off)
+- [x] Secure API Key Management (~/.cli-llm/config.json)
+- [x] Kimi k2.5 Integration (NVIDIA Cloud)
+- [x] Premium TUI (React/Ink)
+- [x] Markdown Rendering & Code Highlighting
+- [x] Streaming Responses
+- [x] Conversation History & Session Resumption
 
 ## Phases
 
@@ -33,5 +35,6 @@
 **Requirements**: REQ-09, REQ-13
 
 ### Phase 5: Polish & Launch
-**Status**: ⬜ Not Started
-**Objective**: Final UI refinements, binary packaging/install instructions, and error handling polish.
+**Status**: ✅ Complete
+**Objective**: Finalize the application, optimize performance, and compile the standalone binary.
+**Requirements**: REQ-14, REQ-15
