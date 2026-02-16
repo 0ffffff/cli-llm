@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Text, useInput } from 'ink';
+import { Box, Text } from 'ink';
 import TextInput from 'ink-text-input';
 import { KimiClient } from '../api/kimi.js';
 import { Markdown } from './components/Markdown.js';
@@ -15,30 +15,41 @@ interface SessionProps {
 export const Session: React.FC<SessionProps> = ({ config }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
-    const [status, setStatus] = useState<'idle' | 'busy' | 'error'>('idle');
+    const [status, setStatus] = useState<'idle' | 'busy' | 'streaming' | 'error'>('idle');
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (value: string) => {
         if (!value.trim()) return;
 
         const userMessage: ChatMessage = { role: 'user', content: value };
-        const newMessages = [...messages, userMessage];
+        const historyWithUser = [...messages, userMessage];
 
-        setMessages(newMessages);
+        setMessages(historyWithUser);
         setInput('');
         setStatus('busy');
         setError(null);
 
         try {
             const client = new KimiClient(config.apiKey!, config.model);
-            // Include system prompt at the start of every request for context
             const apiMessages: ChatMessage[] = [
                 { role: 'system', content: config.defaultSystemPrompt },
-                ...newMessages
+                ...historyWithUser
             ];
 
-            const response = await client.sendMessage(apiMessages);
-            setMessages([...newMessages, { role: 'assistant', content: response }]);
+            const stream = client.sendMessageStream(apiMessages);
+            let assistantContent = '';
+            let started = false;
+
+            for await (const chunk of stream) {
+                if (!started) {
+                    setStatus('streaming');
+                    started = true;
+                }
+                assistantContent += chunk;
+                // Update the last message (the assistant's being formed)
+                setMessages([...historyWithUser, { role: 'assistant', content: assistantContent }]);
+            }
+
             setStatus('idle');
         } catch (err) {
             setError(err instanceof Error ? err.message : String(err));

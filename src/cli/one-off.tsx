@@ -14,30 +14,40 @@ interface OneOffProps {
 export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
     const [response, setResponse] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isStreaming, setIsStreaming] = useState(false);
     const { exit } = useApp();
 
     useEffect(() => {
         const client = new KimiClient(config.apiKey!, config.model);
+        let assistantContent = '';
 
-        client.sendMessage([
-            { role: 'system', content: config.defaultSystemPrompt },
-            { role: 'user', content: prompt }
-        ])
-            .then(res => {
-                setResponse(res);
-            })
-            .catch(err => {
+        const run = async () => {
+            try {
+                const stream = client.sendMessageStream([
+                    { role: 'system', content: config.defaultSystemPrompt },
+                    { role: 'user', content: prompt }
+                ]);
+
+                for await (const chunk of stream) {
+                    setIsStreaming(true);
+                    assistantContent += chunk;
+                    setResponse(assistantContent);
+                }
+                setIsStreaming(false);
+            } catch (err) {
                 setError(err instanceof Error ? err.message : String(err));
-            });
+            }
+        };
+
+        run();
     }, [prompt, config]);
 
     useEffect(() => {
-        if (response || error) {
-            // Small delay for clean render before exit
+        if ((response && !isStreaming) || error) {
             const timer = setTimeout(() => exit(), 500);
             return () => clearTimeout(timer);
         }
-    }, [response, error, exit]);
+    }, [response, error, exit, isStreaming]);
 
     return (
         <Box flexDirection="column" paddingX={1} paddingTop={1}>
