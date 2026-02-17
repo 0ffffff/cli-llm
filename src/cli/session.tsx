@@ -1,12 +1,14 @@
 import * as React from 'react';
-import { useState, useEffect, useMemo } from 'react';
-import { Box, Text, useStdout, useInput } from 'ink';
+import { useCallback, useEffect, useState } from 'react';
+import { Box, Text, useStdout, useInput, measureElement, type DOMElement } from 'ink';
+import { MouseProvider } from '@zenobius/ink-mouse';
 import { KimiClient } from '../api/kimi.js';
 import { HistoryManager } from '../history/manager.js';
 import { Markdown } from './components/Markdown.js';
 import { Thinking } from './components/Thinking.js';
 import { ChatInput } from './components/ChatInput.js';
 import { Footer } from './components/Footer.js';
+import { MouseScrollManager } from './components/MouseScrollManager.js';
 import type { AppConfig } from '../config/types.js';
 import type { ChatMessage } from '../api/types.js';
 
@@ -15,12 +17,27 @@ interface SessionProps {
     sessionId: string;
 }
 
-export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
+export const Session: React.FC<SessionProps> = (props) => {
+    return (
+        <MouseProvider>
+            <SessionInner {...props} />
+        </MouseProvider>
+    );
+};
+
+const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [status, setStatus] = useState<'idle' | 'busy' | 'streaming' | 'error' | 'loading'>('loading');
     const [error, setError] = useState<string | null>(null);
-    const [scrollTop, setScrollTop] = useState(0);
+    const [streamingContent, setStreamingContent] = useState('');
+    // Scroll State
+    const [scrollY, setScrollY] = useState(0);
+    const [contentHeight, setContentHeight] = useState(0);
+    const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+    const contentRef = React.useRef<DOMElement>(null);
+    // ink-mouse types require a non-null DOMElement ref
+    const viewportRef = React.useRef<DOMElement>(null!);
 
     const { stdout } = useStdout();
     const width = stdout?.columns || 80;
@@ -29,18 +46,38 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
     // Viewport height: leave room for header (2) and input/footer (4)
     const viewHeight = Math.max(5, height - 6);
 
-    // Handle Input (keystrokes) and Scroll
-    useInput((inputData, key) => {
-        // Handle Mouse Wheel (SGR mode) or any unhandled ESC sequences
-        if (inputData.startsWith('\x1b')) {
-            if (inputData.includes('64;')) setScrollTop(s => Math.max(0, s - 1));
-            if (inputData.includes('65;')) setScrollTop(s => s + 1);
-            // Always return for ESC sequences to prevent them from hitting other hooks/components
-            return;
+    // Measure content height whenever it changes
+    useEffect(() => {
+        if (contentRef.current) {
+            const { height: measuredHeight } = measureElement(contentRef.current);
+            setContentHeight(measuredHeight);
         }
+    }, [messages, streamingContent, status, width]);
 
-        if (key.pageUp) setScrollTop(s => Math.max(0, s - 10));
-        if (key.pageDown) setScrollTop(s => s + 10);
+    // Auto-scroll logic
+    useEffect(() => {
+        if (shouldAutoScroll) {
+            setScrollY(Math.max(0, contentHeight - viewHeight));
+        }
+    }, [contentHeight, viewHeight, shouldAutoScroll]);
+
+    const scrollBy = useCallback((delta: number) => {
+        const maxScroll = Math.max(0, contentHeight - viewHeight);
+        setScrollY((prev) => {
+            const next = Math.max(0, Math.min(prev + delta, maxScroll));
+            setShouldAutoScroll(next >= maxScroll);
+            return next;
+        });
+    }, [contentHeight, viewHeight]);
+
+    // Handle Input (keystrokes) and Scroll
+    useInput((_inputData, key) => {
+        if (key.pageUp) scrollBy(-viewHeight);
+        if (key.pageDown) scrollBy(viewHeight);
+
+        // Arrow keys support
+        if (key.upArrow) scrollBy(-1);
+        if (key.downArrow) scrollBy(1);
     });
 
     useEffect(() => {
@@ -59,8 +96,6 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
         load();
     }, [sessionId]);
 
-    const [streamingContent, setStreamingContent] = useState('');
-
     const handleSubmit = async (value: string) => {
         if (!value.trim()) return;
 
@@ -71,7 +106,7 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
         setInput('');
         setStatus('busy');
         setError(null);
-        setScrollTop(0); // Jump to top? Or maybe stay where we are. Logic for "follow bottom" could be added.
+        setShouldAutoScroll(true);
 
         try {
             const client = new KimiClient(config.apiKey!, config.model, config.baseUrl);
@@ -114,47 +149,48 @@ export const Session: React.FC<SessionProps> = ({ config, sessionId }) => {
             <Box marginBottom={1} flexShrink={0}>
                 <Text color="blue" bold>● {providerName}</Text>
                 <Text color="gray" dimColor> | {sessionId}</Text>
-                {scrollTop > 0 && <Text color="yellow"> (Scrolled UP)</Text>}
+                {!shouldAutoScroll && <Text color="yellow"> (Scrolled UP)</Text>}
             </Box>
 
             {/* Content Viewport */}
-            <Box flexDirection="column" flexGrow={1} height={viewHeight} overflow="hidden">
-                <Box flexDirection="column" marginTop={-scrollTop}>
+            <Box ref={viewportRef} flexDirection="column" flexGrow={1} height={viewHeight} overflow="hidden">
+                <MouseScrollManager viewportRef={viewportRef} onScrollBy={scrollBy} />
+                <Box ref={contentRef} flexDirection="column" marginTop={-scrollY} flexShrink={0}>
                     {messages.map((msg, index) => (
-                        <Box key={index} flexDirection="column" marginBottom={1}>
-                            <Box>
+                        <Box key={index} flexDirection="column" marginBottom={1} flexShrink={0}>
+                            <Box flexShrink={0}>
                                 <Text bold color={msg.role === 'user' ? 'green' : 'cyan'}>
                                     {msg.role === 'user' ? '[YOU]' : `[${providerName.toUpperCase()}]`}
                                 </Text>
                             </Box>
-                            <Box paddingLeft={2}>
-                                <Markdown>{msg.content}</Markdown>
+                            <Box paddingLeft={2} flexShrink={0}>
+                                <Markdown width={width - 6}>{msg.content}</Markdown>
                             </Box>
                         </Box>
                     ))}
 
                     {status === 'loading' && (
-                        <Box>
+                        <Box flexShrink={0}>
                             <Thinking />
                             <Text> Resuming...</Text>
                         </Box>
                     )}
 
                     {status === 'busy' && (
-                        <Box>
+                        <Box flexShrink={0}>
                             <Thinking />
                         </Box>
                     )}
 
                     {status === 'streaming' && streamingContent && (
-                        <Box flexDirection="column" marginBottom={1}>
-                            <Box>
+                        <Box flexDirection="column" marginBottom={1} flexShrink={0}>
+                            <Box flexShrink={0}>
                                 <Text bold color="cyan">
                                     [{providerName.toUpperCase()}]
                                 </Text>
                             </Box>
-                            <Box paddingLeft={2}>
-                                <Markdown>{streamingContent}</Markdown>
+                            <Box paddingLeft={2} flexShrink={0}>
+                                <Markdown width={width - 6}>{streamingContent}</Markdown>
                             </Box>
                         </Box>
                     )}

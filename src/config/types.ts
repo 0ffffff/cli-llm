@@ -14,6 +14,8 @@ export interface AppConfig {
     historyPath: string;
 }
 
+import { DEFAULT_SYSTEM_PROMPT } from './SYSTEM_PROMPT.ts';
+
 /**
  * Detect provider info from an API key prefix.
  */
@@ -51,7 +53,7 @@ export const DEFAULT_CONFIG: AppConfig = {
     model: 'moonshotai/kimi-k2.5',
     provider: 'Kimi k2.5',
     baseUrl: 'https://integrate.api.nvidia.com/v1/chat/completions',
-    defaultSystemPrompt: 'You are a helpful AI assistant. You provide concise and accurate answers.',
+    defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
     historyLimit: 50,
     historyPath: "history",
 };

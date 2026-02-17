@@ -24,7 +24,7 @@ export class KimiClient {
         } catch (error) {
             clearTimeout(id);
             if (error instanceof Error && error.name === 'AbortError') {
-                throw new Error(`API Request timed out after ${KimiClient.TIMEOUT_MS / 1000}s. Kimi might be thinking deeply...`);
+                throw new Error(`API Request timed out after ${KimiClient.TIMEOUT_MS / 1000}s. The agent might be thinking deeply...`);
             }
             throw error;
         }

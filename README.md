@@ -1,40 +1,25 @@
 # cli-llm
 
-A premium, immersive command-line interface for AI chat. Supports **Kimi (Moonshot AI)**, **OpenAI**, **Anthropic**, and more.
+A command-line interface for AI chat. Supports **Kimi (Moonshot AI)**, **OpenAI**, **Anthropic**, and more.
 
 Built with [Bun](https://bun.sh) and [React Ink](https://github.com/vadimdemedes/ink).
 
 ## Features
 
-- **Immersive UI**: Full-screen, distraction-free terminal interface with isolate history (alternate screen buffer).
-- **Markdown Support**: Syntax highlighting, tables, and formatted text rendering directly in your terminal.
+- **Immersive UI**: Full-screen, distraction-free terminal interface via an alternate screen buffer.
+- **Markdown Rendering**: Renders Markdown-formatted responses directly in your terminal.
 - **Streaming Responses**: Real-time token streaming for a responsive experience.
 - **Session Management**: Automatically saves chat history. Resume past conversations or start fresh.
-- **Mouse Support**: Scroll through chat history using your mouse wheel.
-- **Secure**: API keys are stored locally in `~/.cli-llm/config.json`.
+- **Mouse Support**: Scroll through chat history using your mouse wheel (supported terminals).
+- **Local Storage**: Stores configuration at `~/.cli-llm/config.json` and chat history under `~/.cli-llm/history/` (files are written with `0600` permissions).
 
 ## Installation
-
-### Download Binary
-Download the latest pre-compiled binary for your system from the [Releases](https://github.com/your-username/cli-llm/releases) page.
-
-1. Download `llm` (for macOS/Linux).
-2. Make it executable:
-   ```bash
-   chmod +x llm
-   ```
-3. Move it to your path:
-   ```bash
-   sudo mv llm /usr/local/bin/
-   ```
-
-### Compile from Source
 
 Prerequisites: [Bun](https://bun.sh) installed.
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/cli-llm.git
+   git clone <this-repo>
    cd cli-llm
    ```
 
@@ -49,12 +34,21 @@ Prerequisites: [Bun](https://bun.sh) installed.
    ```
    This will create a standalone `llm` executable in the project directory.
 
+4. (Optional) Put it on your PATH:
+   ```bash
+   sudo mv ./llm /usr/local/bin/llm
+   ```
+
 ## Usage
 
 ### Interactive Chat
 Start a new session:
 ```bash
 llm
+```
+If you did not move the binary onto your PATH, run:
+```bash
+./llm
 ```
 
 ### One-Off Prompt
@@ -83,9 +77,10 @@ llm --select
 The first time you run `llm`, it will ask for your API Key.
 Keys are stored in `~/.cli-llm/config.json`.
 
-You can also set the API key via environment variable:
+You can also set the API key via environment variable (either works):
 ```bash
 export LLM_API_KEY="your-api-key"
+export NVIDIA_API_KEY="your-api-key"
 ```
 
 To reset configuration and history:
@@ -97,3 +92,6 @@ llm reset
 - **Runtime**: Bun
 - **UI Framework**: React + Ink
 - **API Client**: Native `fetch` with streaming support
+
+## Acknowledgements
+This project was made entirely through agents provided via Google Antigravity and Chad IDE. I did not write a single line of code.  
