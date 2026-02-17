@@ -42,8 +42,10 @@ Prerequisites: [Bun](https://bun.sh) installed.
 
 ## Usage
 
-### Interactive Chat
-Start a new session:
+### Commands
+
+#### Interactive Chat
+Start a new interactive chat session:
 ```bash
 llm
 ```
@@ -52,26 +54,52 @@ If you did not move the binary onto your PATH, run:
 ./llm
 ```
 
-### One-Off Prompt
+#### One-Off Prompt
 Quickly ask a question without entering interactive mode (output is printed to stdout):
 ```bash
 llm "Explain quantum computing in 50 words"
+llm What is the capital of France?
 ```
 
-### Resume a Session
-List recent sessions:
+#### Resume a Session
+Resume a specific session by ID:
+```bash
+llm --resume <sessionId>
+llm -r <sessionId>
+```
+
+#### Select a Session
+Interactively select from recent sessions to resume:
+```bash
+llm --select
+llm -s
+```
+
+#### List Sessions
+List all recent chat sessions with timestamps:
 ```bash
 llm list
 ```
+Shows the 20 most recent sessions with their IDs, names, and last modified times.
 
-Resume a specific session:
+#### Reset Everything
+Delete all conversation history and reset (prompts for confirmation):
 ```bash
-llm --resume session-id
+llm reset
+```
+⚠️ **Warning**: This will permanently delete ALL conversation history. Configuration file will be preserved.
+
+#### Help & Version
+Show help information:
+```bash
+llm --help
+llm -h
 ```
 
-Interactively select a session to resume:
+Show version:
 ```bash
-llm --select
+llm --version
+llm -V
 ```
 
 ### Configuration
