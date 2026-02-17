@@ -1,6 +1,6 @@
 # cli-llm
 
-A command-line interface for AI chat. Supports **Kimi (Moonshot AI)**, **OpenAI**, **Anthropic**, and more.
+A command-line interface for AI chat that is **model-agnostic**: bring your own API key, endpoint URL, and model name.
 
 Built with [Bun](https://bun.sh) and [React Ink](https://github.com/vadimdemedes/ink).
 
@@ -11,6 +11,7 @@ Built with [Bun](https://bun.sh) and [React Ink](https://github.com/vadimdemedes
 - **Streaming Responses**: Real-time token streaming for a responsive experience.
 - **Session Management**: Automatically saves chat history. Resume past conversations or start fresh.
 - **Mouse Support**: Scroll through chat history using your mouse wheel (supported terminals).
+- **Model Labeling**: Session header shows the configured model name.
 - **Local Storage**: Stores configuration at `~/.cli-llm/config.json` and chat history under `~/.cli-llm/history/` (files are written with `0600` permissions).
 
 ## Installation
@@ -74,14 +75,30 @@ llm --select
 ```
 
 ### Configuration
-The first time you run `llm`, it will ask for your API Key.
-Keys are stored in `~/.cli-llm/config.json`.
+If `LLM_API_KEY` or `LLM_BASE_URL` is missing, `llm` will open an interactive configuration screen to collect:
+- API key
+- Endpoint URL
+- Model name
 
-You can also set the API key via environment variable (either works):
+Please ensure that these are accurate! The TUI will not function properly if these are malformed.
+
+Keys and settings are stored in `~/.cli-llm/config.json` (you can edit it manually if needed).
+
+You can also configure via environment variables:
 ```bash
 export LLM_API_KEY="your-api-key"
-export NVIDIA_API_KEY="your-api-key"
+export LLM_BASE_URL="https://your-endpoint.example/v1/chat/completions"
+export LLM_MODEL="your-model-id"
+export LLM_PROVIDER_NAME="AI"  # optional label shown in the header
 ```
+
+#### Endpoint compatibility
+This CLI expects an OpenAI-style “chat completions” endpoint that accepts JSON like:
+- `model: string`
+- `messages: { role: 'system' | 'user' | 'assistant', content: string }[]`
+- `stream: boolean`
+
+For streaming, it expects server-sent events with lines like `data: {...}` and a final `data: [DONE]`.
 
 To reset configuration and history:
 ```bash

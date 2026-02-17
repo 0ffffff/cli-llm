@@ -37,21 +37,30 @@ function generateSessionId(): string {
 
 program
     .name('llm')
-    .description('Premium CLI for AI chat — supports Kimi, ChatGPT, Claude, and more')
+    .description('CLI for AI chat — works with your configured endpoint and model')
     .version('1.0.0')
     .option('-r, --resume <sessionId>', 'Resume a specific session by ID')
     .option('-s, --select', 'Interactively select a session to resume')
     .argument('[prompt...]', 'Immediate query text (one-off mode)')
     .action(async (promptParts: string[], options: { resume?: string; select?: boolean }) => {
         const prompt = promptParts.join(' ');
-        const config = await ConfigManager.load();
+        let config = await ConfigManager.load();
 
-        if (!config.apiKey) {
+        const missing: Array<'apiKey' | 'baseUrl'> = [];
+        if (!config.apiKey || !config.apiKey.trim()) missing.push('apiKey');
+        if (!config.baseUrl || !config.baseUrl.trim()) missing.push('baseUrl');
+
+        if (missing.length > 0) {
             enterAltScreen();
-            const instance = render(<Onboarding />);
+            const instance = render(<Onboarding missing={missing} />);
             await instance.waitUntilExit();
             exitAltScreen();
-            return;
+
+            // Re-load and continue in the same invocation if configured
+            config = await ConfigManager.load();
+            if (!config.apiKey || !config.apiKey.trim() || !config.baseUrl || !config.baseUrl.trim()) {
+                return;
+            }
         }
 
         // One-off mode: no alternate screen, just paste into standard output

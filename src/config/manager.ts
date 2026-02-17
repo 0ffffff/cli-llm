@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { type AppConfig, DEFAULT_CONFIG, detectProvider } from './types.js';
+import { type AppConfig, DEFAULT_CONFIG } from './types.js';
 
 export class ConfigManager {
     private static readonly CONFIG_DIR = path.join(os.homedir(), '.cli-llm');
@@ -22,18 +22,24 @@ export class ConfigManager {
         }
 
         // Environment variables override file config
-        const envKey = process.env.LLM_API_KEY || process.env.NVIDIA_API_KEY;
+        const envKey = process.env.LLM_API_KEY;
         if (envKey) {
             config.apiKey = envKey.trim();
         }
 
-        // If we have an API key, auto-detect provider settings
-        if (config.apiKey && (!config.provider || config.provider === DEFAULT_CONFIG.provider)) {
-            config.apiKey = config.apiKey.trim();
-            const provider = detectProvider(config.apiKey);
-            config.provider = provider.name;
-            config.baseUrl = provider.baseUrl;
-            config.model = provider.modelId;
+        const envBaseUrl = process.env.LLM_BASE_URL;
+        if (envBaseUrl) {
+            config.baseUrl = envBaseUrl.trim();
+        }
+
+        const envModel = process.env.LLM_MODEL;
+        if (envModel) {
+            config.model = envModel.trim();
+        }
+
+        const envProviderName = process.env.LLM_PROVIDER_NAME;
+        if (envProviderName) {
+            config.provider = envProviderName.trim();
         }
 
         return config;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Text, useStdout, useInput, measureElement, type DOMElement } from 'ink';
 import { MouseProvider } from '@zenobius/ink-mouse';
-import { KimiClient } from '../api/kimi.js';
+import { ChatClient } from '../api/client.js';
 import { HistoryManager } from '../history/manager.js';
 import { Markdown } from './components/Markdown.js';
 import { Thinking } from './components/Thinking.js';
@@ -109,7 +109,7 @@ const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
         setShouldAutoScroll(true);
 
         try {
-            const client = new KimiClient(config.apiKey!, config.model, config.baseUrl);
+            const client = new ChatClient(config.apiKey!, config.model, config.baseUrl);
             const apiMessages: ChatMessage[] = [
                 { role: 'system', content: config.defaultSystemPrompt },
                 ...historyWithUser
@@ -141,13 +141,13 @@ const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
         }
     };
 
-    const providerName = config.provider || 'AI';
+    const displayName = (config.model && config.model.trim()) || config.provider || 'AI';
 
     return (
         <Box flexDirection="column" width={width} height={height} paddingX={1} paddingTop={1}>
             {/* Header */}
             <Box marginBottom={1} flexShrink={0}>
-                <Text color="blue" bold>● {providerName}</Text>
+                <Text color="blue" bold>● {displayName}</Text>
                 <Text color="gray" dimColor> | {sessionId}</Text>
                 {!shouldAutoScroll && <Text color="yellow"> (Scrolled UP)</Text>}
             </Box>
@@ -160,7 +160,7 @@ const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
                         <Box key={index} flexDirection="column" marginBottom={1} flexShrink={0}>
                             <Box flexShrink={0}>
                                 <Text bold color={msg.role === 'user' ? 'green' : 'cyan'}>
-                                    {msg.role === 'user' ? '[YOU]' : `[${providerName.toUpperCase()}]`}
+                                    {msg.role === 'user' ? '[YOU]' : `[${displayName.toUpperCase()}]`}
                                 </Text>
                             </Box>
                             <Box paddingLeft={2} flexShrink={0}>
@@ -186,7 +186,7 @@ const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
                         <Box flexDirection="column" marginBottom={1} flexShrink={0}>
                             <Box flexShrink={0}>
                                 <Text bold color="cyan">
-                                    [{providerName.toUpperCase()}]
+                                    [{displayName.toUpperCase()}]
                                 </Text>
                             </Box>
                             <Box paddingLeft={2} flexShrink={0}>

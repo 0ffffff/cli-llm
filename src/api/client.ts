@@ -1,18 +1,22 @@
 import type { ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessage } from './types.js';
 
-export class KimiClient {
-    private static readonly DEFAULT_BASE_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-    private static readonly TIMEOUT_MS = 60000; // Increased to 60s for "thinking" models
+/**
+ * Generic client for a "chat completions" style HTTP endpoint that supports:
+ * - JSON requests with { model, messages, stream }
+ * - Streaming responses via server-sent events (lines starting with `data: ...`)
+ */
+export class ChatClient {
+    private static readonly TIMEOUT_MS = 60000;
 
     constructor(
         private readonly apiKey: string,
-        private readonly model: string = 'moonshotai/kimi-k2.5',
-        private readonly baseUrl: string = KimiClient.DEFAULT_BASE_URL
+        private readonly model: string,
+        private readonly endpoint: string
     ) { }
 
     private async fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
         const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), KimiClient.TIMEOUT_MS);
+        const id = setTimeout(() => controller.abort(), ChatClient.TIMEOUT_MS);
 
         try {
             const response = await fetch(url, {
@@ -24,26 +28,24 @@ export class KimiClient {
         } catch (error) {
             clearTimeout(id);
             if (error instanceof Error && error.name === 'AbortError') {
-                throw new Error(`API Request timed out after ${KimiClient.TIMEOUT_MS / 1000}s. The agent might be thinking deeply...`);
+                throw new Error(`API Request timed out after ${ChatClient.TIMEOUT_MS / 1000}s.`);
             }
             throw error;
         }
     }
 
     async sendMessage(messages: ChatMessage[], options: Partial<ChatCompletionRequest> = {}): Promise<string> {
-        const isKimi = this.model.includes('kimi');
         const request: ChatCompletionRequest = {
             model: this.model,
             messages,
             stream: false,
             temperature: 1.0,
             top_p: 1.0,
-            max_tokens: isKimi ? 16384 : 4096,
-            ...(isKimi ? { chat_template_kwargs: { thinking: true } } : {}),
+            max_tokens: 4096,
             ...options,
         };
 
-        const response = await this.fetchWithTimeout(this.baseUrl, {
+        const response = await this.fetchWithTimeout(this.endpoint, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${this.apiKey}`,
@@ -68,19 +70,17 @@ export class KimiClient {
     }
 
     async *sendMessageStream(messages: ChatMessage[], options: Partial<ChatCompletionRequest> = {}): AsyncIterableIterator<string> {
-        const isKimi = this.model.includes('kimi');
         const request: ChatCompletionRequest = {
             model: this.model,
             messages,
             stream: true,
             temperature: 1.0,
             top_p: 1.0,
-            max_tokens: isKimi ? 16384 : 4096,
-            ...(isKimi ? { chat_template_kwargs: { thinking: true } } : {}),
+            max_tokens: 4096,
             ...options,
         };
 
-        const response = await this.fetchWithTimeout(this.baseUrl, {
+        const response = await this.fetchWithTimeout(this.endpoint, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${this.apiKey}`,
@@ -122,7 +122,7 @@ export class KimiClient {
                         if (content) {
                             yield content;
                         }
-                    } catch (e) {
+                    } catch {
                         // ignore parsing errors for partial chunks
                     }
                 }
@@ -130,3 +130,4 @@ export class KimiClient {
         }
     }
 }
+
