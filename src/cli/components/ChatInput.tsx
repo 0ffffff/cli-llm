@@ -27,10 +27,13 @@ export const ChatInput: React.FC<ChatInputProps> = ({
         // These often leak into input when mouse events aren't fully consumed by the terminal.
         const mouseRegex = /\[<[0-9; ]*[MmNnL]|([0-9]{1,3}[; ]+){1,2}[0-9]{1,3}[MmNnL]?|‹|\[<[0-9]*|\[[()#;?<>]*[0-9;?<>]*[A-PRZcf-nqry=><]/g;
 
+        // Regex to strip ASCII control characters (0-31, 127) and extended control chars (128-159)
+        const controlCharsRegex = /[\x00-\x1F\x7F-\x9F]/g;
+
         const filtered = val
             .replace(pkgRegex, '')
             .replace(mouseRegex, '')
-            .replace(/[\x00-\x1F\x7F-\x9F]/g, '');
+            .replace(controlCharsRegex, '');
 
         onChange(filtered);
     };
