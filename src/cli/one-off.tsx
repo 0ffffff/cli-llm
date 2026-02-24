@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
-import { ChatClient } from '../api/client.js';
+import { createLLMClient } from '../api/factory.js';
 import { Markdown } from './components/Markdown.js';
 import { Thinking } from './components/Thinking.js';
 import type { AppConfig } from '../config/types.js';
@@ -18,7 +18,7 @@ export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
     const { exit } = useApp();
 
     useEffect(() => {
-        const client = new ChatClient(config.apiKey!, config.model, config.baseUrl);
+        const client = createLLMClient(config);
         let assistantContent = '';
 
         const run = async () => {
@@ -39,7 +39,7 @@ export const OneOff: React.FC<OneOffProps> = ({ prompt, config }) => {
             }
         };
 
-        run();
+        void run();
     }, [prompt, config]);
 
     useEffect(() => {

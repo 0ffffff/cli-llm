@@ -43,12 +43,20 @@ export const Configure: React.FC<{ missing?: Array<'apiKey' | 'baseUrl'> }> = ({
         setError(null);
 
         const existing = await ConfigManager.load();
+        const trimmedKey = finalApiKey.trim();
+        const existingAny = existing as any;
+        const apiKeys = {
+            ...(existingAny.apiKeys ?? {}),
+            nim: trimmedKey,
+        } as Record<string, string>;
+
         await ConfigManager.save({
             ...existing,
-            apiKey: finalApiKey.trim(),
+            apiKeys,
             baseUrl: finalBaseUrl.trim(),
             model: (finalModel.trim() || 'default'),
-            provider: existing.provider?.trim() ? existing.provider : 'AI',
+            // Default to the canonical provider ID for new configs.
+            provider: existing.provider?.trim() ? existing.provider : 'nim',
         });
 
         setIsSaving(false);

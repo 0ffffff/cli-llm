@@ -1,9 +1,15 @@
 import { DEFAULT_SYSTEM_PROMPT } from './SYSTEM_PROMPT.js';
 
 export interface AppConfig {
-    apiKey?: string;
+    /**
+     * Map of provider IDs to API keys, e.g. { nim: '...', cerebras: '...' }.
+     */
+    apiKeys?: Record<string, string>;
     model: string;
-    provider: string;      // Display name shown in the UI (e.g. "AI")
+    /**
+     * Provider ID used by the client factory (e.g. "nim", "cerebras").
+     */
+    provider: string;
     baseUrl: string;       // Chat completions endpoint URL
     defaultSystemPrompt: string;
     historyLimit: number;
@@ -14,7 +20,7 @@ export const DEFAULT_CONFIG: AppConfig = {
     // These must be configured for your endpoint.
     // They can be provided via ~/.cli-llm/config.json or environment variables.
     model: 'default',
-    provider: 'AI',
+    provider: 'nim',
     baseUrl: '',
     defaultSystemPrompt: DEFAULT_SYSTEM_PROMPT,
     historyLimit: 50,

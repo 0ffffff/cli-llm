@@ -8,8 +8,17 @@ import { OneOff } from './src/cli/one-off.js';
 import { Session } from './src/cli/session.js';
 import { SessionPicker } from './src/cli/SessionPicker.js';
 import { HistoryManager } from './src/history/manager.js';
+import { ModelPicker } from './src/cli/ModelPicker.js';
 
 const program = new Command();
+
+// On any CLI invocation, attempt to load the config once up front.
+// This ensures that a malformed local config file is automatically
+// repaired (reset to a functioning default) the next time any `llm`
+// command is run, without triggering interactive onboarding.
+void ConfigManager.load().catch(error => {
+    console.error('Non-fatal error while preloading configuration:', error);
+});
 
 // Alternate screen buffer helpers
 function enterAltScreen() {
@@ -41,16 +50,18 @@ program
     .version('1.0.0')
     .option('-r, --resume <sessionId>', 'Resume a specific session by ID')
     .option('-s, --select', 'Interactively select a session to resume')
+    .option('-m, --model', 'Interactively select provider/model')
     .argument('[prompt...]', 'Immediate query text (one-off mode)')
-    .action(async (promptParts: string[], options: { resume?: string; select?: boolean }) => {
+    .action(async (promptParts: string[], options: { resume?: string; select?: boolean; model?: boolean }) => {
         const prompt = promptParts.join(' ');
         let config = await ConfigManager.load();
 
+        const normalizedProvider = (config.provider || 'nim').trim().toLowerCase();
         const missing: Array<'apiKey' | 'baseUrl'> = [];
-        if (!config.apiKey || !config.apiKey.trim()) missing.push('apiKey');
+        if (!config.apiKeys?.[normalizedProvider]?.trim()) missing.push('apiKey');
         if (!config.baseUrl || !config.baseUrl.trim()) missing.push('baseUrl');
 
-        if (missing.length > 0) {
+        if (missing.length > 0 && !options.model) {
             enterAltScreen();
             const instance = render(<Onboarding missing={missing} />);
             await instance.waitUntilExit();
@@ -58,7 +69,72 @@ program
 
             // Re-load and continue in the same invocation if configured
             config = await ConfigManager.load();
-            if (!config.apiKey || !config.apiKey.trim() || !config.baseUrl || !config.baseUrl.trim()) {
+            const providerAfter = (config.provider || 'nim').trim().toLowerCase();
+            if (!config.apiKeys?.[providerAfter]?.trim() || !config.baseUrl?.trim()) {
+                return;
+            }
+        }
+
+        // --model mode: show interactive model/provider picker and update config
+        if (options.model) {
+            enterAltScreen();
+            let selection: { provider: string; model: string } | null = null;
+
+            const PickerApp: React.FC = () => {
+                const handleSelect = (value: { provider: string; model: string } | null) => {
+                    selection = value;
+                };
+                return <ModelPicker config={config} onSelect={handleSelect} />;
+            };
+
+            const pickerInstance = render(<PickerApp />);
+            await pickerInstance.waitUntilExit();
+            exitAltScreen();
+
+            if (!selection) {
+                return;
+            }
+
+            const sel = selection as { provider: string; model: string };
+            const providerId = sel.provider.trim().toLowerCase();
+            const modelId = sel.model;
+
+            const updated: any = { ...config };
+            updated.provider = providerId;
+            updated.model = modelId;
+            const existingKeys = (updated.apiKeys ?? {}) as Record<string, string>;
+
+            let apiKeyForProvider = existingKeys[providerId];
+            if (!apiKeyForProvider || !apiKeyForProvider.trim()) {
+                const rl = readline.createInterface({
+                    input: process.stdin,
+                    output: process.stdout,
+                });
+                const answer = await new Promise<string>(resolve => {
+                    rl.question(`Enter API key for provider "${providerId}": `, resolve);
+                });
+                rl.close();
+                const trimmed = answer.trim();
+                if (!trimmed) {
+                    console.error('No API key provided; aborting model change.');
+                    return;
+                }
+                apiKeyForProvider = trimmed;
+            }
+
+            updated.apiKeys = {
+                ...existingKeys,
+                [providerId]: apiKeyForProvider,
+            };
+
+            await ConfigManager.save(updated);
+            console.log(`Updated provider to "${providerId}" and model to "${modelId}".`);
+
+            // Reload config so subsequent logic (one-off or session) uses the new values.
+            config = await ConfigManager.load();
+
+            // If the user only wanted to change the model, exit now.
+            if (!prompt) {
                 return;
             }
         }
