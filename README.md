@@ -16,6 +16,20 @@ Built with [Bun](https://bun.sh) and [React Ink](https://github.com/vadimdemedes
 
 ## Installation
 
+You can either **download a prebuilt binary (no build required)** or **build from source**.
+
+### Option 1: Download from GitHub Releases (recommended)
+
+1. Go to the **Releases** section of this repository on GitHub.
+2. Download the `llm` binary (or archive) for your platform.
+3. Make it executable and (optionally) put it on your `PATH`:
+   ```bash
+   chmod +x ./llm
+   sudo mv ./llm /usr/local/bin/llm
+   ```
+
+### Option 2: Build from source
+
 Prerequisites: [Bun](https://bun.sh) installed.
 
 1. Clone the repository:
