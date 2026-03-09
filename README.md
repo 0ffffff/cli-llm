@@ -75,6 +75,14 @@ llm --select
 llm -s
 ```
 
+#### Select Provider / Model
+Interactively select a model (and its provider) to use for subsequent runs:
+```bash
+llm --model
+llm -m
+```
+This updates `provider`, `model`, and the appropriate API key in `~/.cli-llm/config.json`. If no API key exists yet for the chosen provider, you will be prompted to enter one.
+
 #### List Sessions
 List all recent chat sessions with timestamps:
 ```bash
@@ -112,12 +120,29 @@ Please ensure that these are accurate! The TUI will not function properly if the
 
 Keys and settings are stored in `~/.cli-llm/config.json` (you can edit it manually if needed).
 
+At runtime the CLI is **provider-agnostic** and uses a small factory to select the appropriate gateway client:
+- `provider: "nim"` → NVIDIA NIM / any OpenAI-compatible HTTP chat-completions endpoint (uses `baseUrl`).
+- `provider: "cerebras"` → Cerebras Cloud via `@cerebras/cerebras_cloud_sdk` (ignores `baseUrl`, uses the configured `model`).
+
+The config file stores API keys per provider in `apiKeys`:
+```jsonc
+{
+  "apiKeys": {
+    "nim": "NIM_API_KEY",
+    "cerebras": "CEREBRAS_API_KEY"
+  },
+  "provider": "nim",
+  "model": "your-model-id",
+  "baseUrl": "https://your-endpoint.example/v1/chat/completions"
+}
+```
+
 You can also configure via environment variables:
 ```bash
 export LLM_API_KEY="your-api-key"
 export LLM_BASE_URL="https://your-endpoint.example/v1/chat/completions"
 export LLM_MODEL="your-model-id"
-export LLM_PROVIDER_NAME="AI"  # optional label shown in the header
+export LLM_PROVIDER_NAME="nim"  # or "cerebras"; provider ID used by the client
 ```
 
 #### Endpoint compatibility

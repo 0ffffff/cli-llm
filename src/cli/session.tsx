@@ -2,7 +2,8 @@ import * as React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Text, useStdout, useInput, measureElement, type DOMElement } from 'ink';
 import { MouseProvider } from '@zenobius/ink-mouse';
-import { ChatClient } from '../api/client.js';
+import { createLLMClient } from '../api/factory.js';
+import { getModelDisplayLabel } from '../api/providers/registry.js';
 import { HistoryManager } from '../history/manager.js';
 import { Markdown } from './components/Markdown.js';
 import { Thinking } from './components/Thinking.js';
@@ -109,7 +110,7 @@ const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
         setShouldAutoScroll(true);
 
         try {
-            const client = new ChatClient(config.apiKey!, config.model, config.baseUrl);
+            const client = createLLMClient(config);
             const apiMessages: ChatMessage[] = [
                 { role: 'system', content: config.defaultSystemPrompt },
                 ...historyWithUser
@@ -141,7 +142,9 @@ const SessionInner: React.FC<SessionProps> = ({ config, sessionId }) => {
         }
     };
 
-    const displayName = (config.model && config.model.trim()) || config.provider || 'AI';
+    const providerId = (config.provider || 'nim').trim().toLowerCase();
+    const modelId = (config.model && config.model.trim()) || 'default';
+    const displayName = getModelDisplayLabel(providerId, modelId);
 
     return (
         <Box flexDirection="column" width={width} height={height} paddingX={1} paddingTop={1}>

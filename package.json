@@ -16,6 +16,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@cerebras/cerebras_cloud_sdk": "^1.0.0",
     "@zenobius/ink-mouse": "^1.0.3",
     "ansi-regex": "^6.2.2",
     "axios": "^1.13.5",
